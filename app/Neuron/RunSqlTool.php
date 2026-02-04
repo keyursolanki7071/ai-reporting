@@ -14,12 +14,15 @@ use NeuronAI\Tools\ToolProperty;
 
 class RunSqlTool extends Tool
 {
-    public function __construct()
+    private string $connection;
+
+    public function __construct(string $connection = 'report')
     {
         parent::__construct(
             'run_sql',
             'Execute a safe, read-only SQL SELECT query',
         );
+        $this->connection = $connection;
     }
 
     protected function properties(): array
@@ -36,12 +39,12 @@ class RunSqlTool extends Tool
 
     public function __invoke(string $sql): array
     {
-        Log::info('Executing SQL Tool: '.$sql);
+        Log::info('Executing SQL Tool on ' . $this->connection . ': ' . $sql);
 
         if (! Str::of($sql)->trim()->upper()->startsWith('SELECT')) {
             throw new InvalidArgumentException('Only SELECT queries are allowed for security reasons.');
         }
 
-        return DB::connection('report')->select($sql);
+        return DB::connection($this->connection)->select($sql);
     }
 }

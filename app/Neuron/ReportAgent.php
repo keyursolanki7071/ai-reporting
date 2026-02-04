@@ -15,6 +15,10 @@ use NeuronAI\Tools\Toolkits\ToolkitInterface;
 
 class ReportAgent extends Agent
 {
+    public function __construct(protected string $connection = 'report')
+    {
+    }
+
     protected function provider(): AIProviderInterface
     {
         return new Gemini(
@@ -26,7 +30,7 @@ class ReportAgent extends Agent
     public function instructions(): string
     {
         $schema = app(SchemaFormatter::class)
-            ->format(app(SchemaFetcher::class)->fetch());
+            ->format(app(SchemaFetcher::class)->fetch($this->connection));
 
         $prompt = "
             $schema
@@ -53,7 +57,7 @@ class ReportAgent extends Agent
     protected function tools(): array
     {
         return [
-            RunSqlTool::make(),
+            RunSqlTool::make($this->connection),
         ];
     }
 }

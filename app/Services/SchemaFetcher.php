@@ -9,18 +9,13 @@ use Illuminate\Support\Facades\DB;
 
 class SchemaFetcher
 {
-    const ALLOWED_TABLES = ['coupons', 'orders', 'users', 'order_items', 'products', 'warehouses', 'payment_schedules'];
-
-    const CONNECTION = 'report';
-
-    public function fetch(): array
+    public function fetch(string $connection = self::CONNECTION): array
     {
-        // return Cache::remember('db_schema', 3600, function () {
-            return DB::connection(self::CONNECTION)->select("
+        // return Cache::remember('db_schema_' . $connection, 3600, function () use ($connection) {
+            return DB::connection($connection)->select("
                 SELECT table_name, column_name, data_type
                 FROM information_schema.columns
                 WHERE table_schema = DATABASE()
-                AND table_name IN ('".implode("','", self::ALLOWED_TABLES)."')
                 ORDER BY table_name, ordinal_position
             ");
         // });
